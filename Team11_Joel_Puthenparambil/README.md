@@ -108,13 +108,13 @@ Evaluation notebook: `code/evaluate.ipynb` — Results: `results/evaluation_repo
 
 ## Error Analysis
 
-**Model 1 (Mistral-7B):** Generally produces grammatically correct German with plausible statute citations. Occasionally cites paragraphs that do not exist or conflates §-numbers across laws (hallucination). Answers tend to be longer than necessary.
+**Model 1 (Mistral-7B):** Most answers are grammatically correct German, but two recurring issues appear. First, ~435 answers append an English disclaimer such as `(Note: This answer is based on the general principles of Austrian tax law and may not apply to all specific factual situations.)` — the model adds these even though the prompt instructs German-only output. Second, ~83 answers end mid-sentence (truncated) because `max_new_tokens=200` is hit before the answer is complete. Statute citations are present in most answers but are sometimes invented (e.g. `§ 32 Abs 1 KStG` for loss deduction limits, which does not exist in that form).
 
-**Model 2 (TinyLlama fine-tuned):** The 1.1B parameter base model is small for this domain. Answers sometimes drift off-topic or repeat phrases. Fine-tuning on 758 template-generated pairs improved citation format consistency but did not fully prevent hallucination. The main quality bottleneck is model capacity — the LoRA configuration is standard but the base model is too small to reliably handle Austrian legal terminology.
+**Model 2 (TinyLlama fine-tuned):** Three answers are entirely in English or meaningless (e.g. `VAT-DOM-078` outputs `"To which paragraph of Chapter IV is the following legal text from?"` — the model echoed the question structure instead of answering). About 59 answers are truncated mid-sentence, cut off by `max_new_tokens=150`. Around 56 answers are very short (under 10 words) and non-informative (e.g. `"Die Folgen für den Abgabenbeleg sind nicht bekannt."`). Some answers hallucinate plausible-sounding but invented statute references with garbled text (e.g. `Paragraph 205 B EGD`). The 1.1B model is too small for reliable Austrian legal reasoning.
 
-**Model 3 (RAG + Gemini):** Highest answer quality overall. Retrieved statute passages ground the generator in real legal text, strongly reducing hallucination. Failures occur mainly when the relevant statute is not among the five scraped laws (e.g. niche sub-regulations), causing the retriever to return loosely related passages and the generator to produce a vague answer.
+**Model 3 (RAG + Gemini):** No truncated answers, no English outputs, all 643 answers end with proper punctuation. Quality is consistently the highest. The main failure mode is when the question involves a statute not in the scraped corpus (EStG, KStG, UStG, GrEStG, BAO), causing the retriever to return loosely related passages and Gemini to produce a vague or cautious answer.
 
-**Common pattern across all models:** Questions that require reasoning across multiple statutes (e.g. combining EStG and BAO provisions) are harder for all three models. Models 1 and 2 tend to cite only one statute in such cases; Model 3 handles it better when both laws are in the index.
+**Common issue across Model 1 and 2:** Neither model was given enough output tokens for complex multi-part questions. Model 3 avoids this because Gemini's generation is not token-limited in the same way.
 
 ---
 
