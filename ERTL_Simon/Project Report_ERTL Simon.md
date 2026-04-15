@@ -214,7 +214,7 @@ All three models have ``Exact Match = 0.0``. This does not mean that every answe
 
 The same results can be found in the `evaluation_summary_ERTL.csv`-file.
 
-Model 1 has the highest BERTScore Recall and the highest BERTScore F1. In other words, its answers are on average semantically closest to the gold references when broad semantic similarity is measured. However, the model is also by far the most verbose, with an average answer length of about 135 tokens. This suggests that part of its semantic score comes from long, broad answers that contain some relevant material, but also much unnecessary text.
+Model 1 has the highest BERTScore Recall and the highest BERTScore F1. In other words, its answers are on average semantically closest to the references when broad semantic similarity is measured. However, the model is also by far the most verbose, with an average answer length of about 135 tokens. This suggests that part of its semantic score comes from long, broad answers that contain some relevant material, but also much unnecessary text.
 
 Model 2 clearly shortens the answers compared to Model 1. This is an important stylistic improvement, and in fact it produces the shortest answers on average, at about 60 tokens. Nevertheless, its overlap-based metrics do not improve consistently, and its BERTScore F1 is the lowest of the three models. The fine-tuning therefore changed the model’s behavior, but not in a fully beneficial way.
 
